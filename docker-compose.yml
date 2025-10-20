@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    ports: [ "3000:3000" ]
+    environment:
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./apps/web:/app
+  api:
+    build:
+      context: .
+      dockerfile: infra/docker/api-gateway.Dockerfile
+    ports: [ "8000:8000" ]
+    volumes:
+      - ./services/api-gateway/app:/app/app
+  face:
+    build:
+      context: .
+      dockerfile: infra/docker/face.Dockerfile
+    ports: ["8001:8001"]
+    volumes: [ "./services/emotion-face/app:/app/app" ]
+  voice:
+    build:
+      context: .
+      dockerfile: infra/docker/voice.Dockerfile
+    ports: ["8002:8002"]
+    volumes: [ "./services/emotion-voice/app:/app/app" ]
+  fusion:
+    build:
+      context: .
+      dockerfile: infra/docker/fusion.Dockerfile
+    ports: ["8003:8003"]
+    volumes: [ "./services/fusion/app:/app/app" ]

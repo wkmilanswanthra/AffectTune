@@ -1,0 +1,36 @@
+syntax = "proto3";
+package emotion;
+
+message EmotionProbs {
+  repeated float probs = 1;  // [happy, sad, angry, fear, surprise, neutral, disgust]
+  float valence = 2;
+  float arousal = 3;
+  float confidence = 4;
+  string model_version = 5;
+}
+
+message FaceRequest {
+  bytes jpeg_frame = 1;  // compressed frame (future: YUV/RGB tensor)
+  int64 ts_ms = 2;
+}
+
+message VoiceRequest {
+  bytes pcm16le = 1;   // 16-bit PCM chunk
+  int32 sample_rate = 2;
+  int64 ts_ms = 3;
+}
+
+message EmotionResponse {
+  EmotionProbs face = 1;
+  EmotionProbs voice = 2;
+  EmotionProbs fusion = 3; // Sprint 2+
+}
+
+service FaceService {
+  rpc Infer (FaceRequest) returns (EmotionProbs);
+}
+
+service VoiceService {
+  rpc Infer (VoiceRequest) returns (EmotionProbs);
+}
+PR
