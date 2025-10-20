@@ -1,6 +1,39 @@
+from fastapi import FastAPI, WebSocket
+from pydantic import BaseModel
 from fastapi import UploadFile, File
 from fastapi import HTTPException
 import httpx, os
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="Emotion Reco API Gateway", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+print("API Gateway starting...")
+class Health(BaseModel):
+    status: str
+
+@app.get("/health", response_model=Health)
+def health():
+    print("Health check received")
+    return {"status": "ok"}
+
+@app.websocket("/ws/echo")
+async def ws_echo(ws: WebSocket):
+    await ws.accept()
+    try:
+        while True:
+            msg = await ws.receive_text()
+            await ws.send_text(f"echo:{msg}")
+    except Exception:
+        await ws.close()
+
 
 FACE_URL  = os.getenv("FACE_URL",  "http://localhost:8001")
 VOICE_URL = os.getenv("VOICE_URL", "http://localhost:8002")
