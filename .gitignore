@@ -9,3 +9,5 @@ mlruns/
 .env.*
 .venv.*
 .venv/
+models/*/data/
+models/*/export/

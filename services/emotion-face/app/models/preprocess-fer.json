@@ -1,0 +1,16 @@
+{
+  "img_size": 64,
+  "channels": 1,
+  "mean": [0.5],
+  "std": [0.5],
+  "classes": [
+    "neutral",
+    "happiness",
+    "surprise",
+    "sadness",
+    "anger",
+    "disgust",
+    "fear",
+    "contempt"
+  ]
+}

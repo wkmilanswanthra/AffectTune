@@ -10,13 +10,14 @@ import {
 } from "recharts";
 
 const EMOTIONS = [
-  "happy",
-  "sad",
-  "angry",
-  "fear",
-  "surprise",
   "neutral",
+  "happiness",
+  "surprise",
+  "sadness",
+  "anger",
   "disgust",
+  "fear",
+  "contempt",
 ];
 
 export default function Home() {
@@ -25,11 +26,12 @@ export default function Home() {
   const [wFace, setWFace] = useState(0.6);
   const [wVoice, setWVoice] = useState(0.4);
 
-  const [probs, setProbs] = useState<number[]>([0, 0, 0, 0, 0, 1, 0]);
+  const [probs, setProbs] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [va, setVA] = useState<{ val: number; aro: number }>({
     val: 0,
     aro: 0,
   });
+  const [currentMood, setCurrentMood] = useState<String>("");
 
   useEffect(() => {
     let stream: MediaStream | null = null;
@@ -103,11 +105,10 @@ export default function Home() {
 
           inFlight = true;
           try {
-            const r = await fetch("http://127.0.0.1:8000/infer/face", {
+            const r = await fetch("http://192.168.1.155:8000/infer/face", {
               method: "POST",
               body: form,
             });
-            console.log("fetch returned", r.status);
             if (!r.ok) {
               const txt = await r.text().catch(() => "");
               throw new Error(`HTTP ${r.status} ${r.statusText} ${txt}`);
@@ -122,15 +123,21 @@ export default function Home() {
                 setVA({ val: face.valence, aro: face.arousal });
               }
             }
+            console.log(Math.max(...face.probs));
+            console.log(face.probs.indexOf(Math.max(...face.probs)));
+            setCurrentMood(
+              EMOTIONS[face.probs.indexOf(Math.max(...face.probs))]
+            );
           } catch (e) {
             console.error(e);
           } finally {
             inFlight = false;
+
             if (!cancelled) timer = window.setTimeout(tick, 800);
           }
         };
 
-        timer = window.setTimeout(tick, 800);
+        timer = window.setTimeout(tick, 5000);
       } catch (err) {
         console.error("getUserMedia failed:", err);
       }
@@ -204,6 +211,7 @@ export default function Home() {
             <Bar dataKey="p" />
           </BarChart>
         </ResponsiveContainer>
+        <div className="block text-3xl mt-5">Current Mood :{currentMood}</div>
       </section>
     </main>
   );
